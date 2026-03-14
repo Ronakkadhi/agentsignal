@@ -1,0 +1,56 @@
+name: Auto-Update Docs
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'src/sources/**'
+      - 'src/api/**'
+      - 'src/types.ts'
+
+jobs:
+  update-docs:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+
+      - name: Generate source list
+        run: |
+          echo "## Active Sources" > /tmp/sources.md
+          echo "" >> /tmp/sources.md
+          echo "| Source | Type | File |" >> /tmp/sources.md
+          echo "|---|---|---|" >> /tmp/sources.md
+          for f in src/sources/*.ts; do
+            if [ "$(basename $f)" != "index.ts" ]; then
+              NAME=$(grep -oP 'name:\s*"([^"]+)"' "$f" | head -1 | grep -oP '"[^"]+"' | tr -d '"')
+              TYPE=$(grep -oP 'type:\s*"([^"]+)"' "$f" | head -1 | grep -oP '"[^"]+"' | tr -d '"')
+              if [ -n "$NAME" ]; then
+                echo "| $NAME | $TYPE | $(basename $f) |" >> /tmp/sources.md
+              fi
+            fi
+          done
+          echo "" >> /tmp/sources.md
+          cat /tmp/sources.md
+
+      - name: Check for changes
+        id: changes
+        run: |
+          git diff --quiet || echo "changed=true" >> $GITHUB_OUTPUT
+
+      - name: Commit docs updates
+        if: steps.changes.outputs.changed == 'true'
+        run: |
+          git config user.name "AgentSignal Bot"
+          git config user.email "bot@agentsignal.co"
+          git add -A
+          git commit -m "docs: auto-update source documentation"
+          git push

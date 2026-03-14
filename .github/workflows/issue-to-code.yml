@@ -1,0 +1,47 @@
+name: Claude Issue-to-Code
+
+on:
+  issues:
+    types: [labeled]
+
+jobs:
+  build:
+    if: github.event.label.name == 'approved'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      issues: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: anthropics/claude-code-action@v1
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          trigger_phrase: ""
+          prompt: |
+            Read this GitHub issue and implement what it asks for in the AgentSignal codebase.
+
+            Issue title: ${{ github.event.issue.title }}
+            Issue body: ${{ github.event.issue.body }}
+
+            This is an open-source signal feed for AI agents. The codebase uses TypeScript + Hono.
+
+            If the issue asks to add a new data source:
+            1. Create a new file in src/sources/ following the SourceProvider interface
+            2. The source must:
+               - Export a const implementing SourceProvider (name, type, intervalMs, fetch)
+               - fetch() returns Signal[] with: id, timestamp, type, source, title, summary, url, topics, score: 0, metadata
+               - Handle errors gracefully (return [] on failure)
+               - Use only free, no-auth APIs
+            3. Register it in src/sources/index.ts
+            4. Add scoring logic in src/scoring/engine.ts if the source has engagement metrics
+            5. Add the source to the landing page source grid in web/index.html
+            6. Update README.md source table
+
+            If the issue asks for a feature or bug fix:
+            - Read existing code first to understand patterns
+            - Keep changes minimal and focused
+            - Match existing code style
+
+            Create a new branch, commit changes, and open a PR.

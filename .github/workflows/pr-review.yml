@@ -1,0 +1,41 @@
+name: Claude PR Review
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: anthropics/claude-code-action@v1
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          prompt: |
+            Review this PR for the AgentSignal project (open-source signal feed for AI agents).
+
+            Focus on:
+            1. If it adds a new source connector:
+               - Does it implement the SourceProvider interface (name, type, intervalMs, fetch)?
+               - Does fetch() return Signal[] with all required fields (id, timestamp, type, source, title, summary, url, topics, score, metadata)?
+               - Does it handle errors gracefully (return [] on failure, not throw)?
+               - Is intervalMs set conservatively (not too aggressive)?
+               - Is it registered in src/sources/index.ts?
+               - Does it use free APIs only (no paid API keys)?
+
+            2. General code quality:
+               - TypeScript strict mode compliance
+               - No security issues (command injection, data leaks)
+               - Consistent with existing code patterns
+               - Error handling present
+
+            3. Docs:
+               - Is README updated if needed?
+               - Source added to landing page if it's a new source?
+
+            Be concise. Approve if it looks good. Request changes with specific suggestions if not.

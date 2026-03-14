@@ -1,0 +1,35 @@
+{
+  "name": "agentsignal",
+  "version": "0.1.0",
+  "description": "One API. Every signal. Built for agents.",
+  "type": "module",
+  "main": "dist/index.js",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js"
+  },
+  "keywords": [
+    "ai",
+    "agents",
+    "feed",
+    "signals",
+    "api"
+  ],
+  "author": "AgentSignal",
+  "license": "MIT",
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.78.0",
+    "@hono/node-server": "^1.19.11",
+    "hono": "^4.12.8",
+    "nanoid": "^3.3.11",
+    "node-cron": "^4.2.1",
+    "rss-parser": "^3.13.0"
+  },
+  "devDependencies": {
+    "@types/node": "^25.5.0",
+    "@types/node-cron": "^3.0.11",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3"
+  }
+}
