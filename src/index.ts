@@ -5,7 +5,7 @@ import { serveStatic } from "@hono/node-server/serve-static";
 import { feed } from "./api/feed.js";
 import { sourcesApi } from "./api/sources.js";
 import { ask } from "./api/ask.js";
-import { watch } from "./api/watch.js";
+import { follow } from "./api/follow.js";
 import { startScheduler } from "./scheduler/cron.js";
 
 const app = new Hono();
@@ -50,7 +50,7 @@ function rateLimitMiddleware(path: string) {
 
 app.use("/feed/*", rateLimitMiddleware("/feed"));
 app.use("/sources/*", rateLimitMiddleware("/sources"));
-app.use("/watch/*", rateLimitMiddleware("/watch"));
+app.use("/follow/*", rateLimitMiddleware("/follow"));
 // /ask has its own stricter rate limit (20/hr) built in
 
 // Clean up rate limit map every 10 minutes
@@ -65,7 +65,7 @@ setInterval(() => {
 app.route("/feed", feed);
 app.route("/sources", sourcesApi);
 app.route("/ask", ask);
-app.route("/watch", watch);
+app.route("/follow", follow);
 
 // Health check
 app.get("/health", (c) => {
@@ -102,8 +102,8 @@ console.log(`
     GET  /feed              → Ranked markdown feed
     GET  /feed?format=json  → JSON format
     POST /ask               → Ask questions (LLM-powered)
-    POST /watch             → Create topic subscription
-    GET  /feed?watch=<id>   → Filtered watch feed
+    POST /follow            → Create topic subscription
+    GET  /feed?follow=<id>  → Filtered follow feed
     GET  /sources           → Active sources
     GET  /health            → Health check
 

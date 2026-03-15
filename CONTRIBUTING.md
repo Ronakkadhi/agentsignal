@@ -111,7 +111,7 @@ Looking for inspiration? These are all free and available:
 ## Development Setup
 
 ```bash
-git clone https://github.com/agentsignal/agentsignal.git
+git clone https://github.com/Ronakkadhi/agentsignal.git
 cd agentsignal
 npm install
 npm run dev

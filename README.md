@@ -47,12 +47,12 @@ curl -X POST agentsignal.co/ask \
   -H "Content-Type: application/json" \
   -d '{"q": "What happened to crypto today?"}'
 
-# Create a topic watch
-curl -X POST agentsignal.co/watch \
+# Create a topic follow
+curl -X POST agentsignal.co/follow \
   -d '{"topics": ["ai", "regulation"], "min_score": 60}'
 
 # Poll your personalized feed
-curl agentsignal.co/feed?watch=YOUR_WATCH_ID
+curl agentsignal.co/feed?follow=YOUR_FOLLOW_ID
 ```
 
 ## API
@@ -63,7 +63,7 @@ curl agentsignal.co/feed?watch=YOUR_WATCH_ID
 |---|---|
 | `GET /feed` | Ranked signal feed (markdown default) |
 | `GET /feed?format=json` | Same data, structured JSON |
-| `GET /feed?watch=<id>` | Personalized watch feed |
+| `GET /feed?follow=<id>` | Personalized follow feed |
 | `GET /sources` | List all active sources + status |
 | `GET /health` | Health check |
 
@@ -76,14 +76,14 @@ curl agentsignal.co/feed?watch=YOUR_WATCH_ID
 Body: `{"q": "your question", "lookback": "6h"}`
 Returns plain text answer (or `?format=json`).
 
-### Watch — Topic Subscriptions
+### Follow — Topic Subscriptions
 
 | Endpoint | Description |
 |---|---|
-| `POST /watch` | Create a watch — `{"topics": ["ai"], "min_score": 50}` |
-| `GET /watch` | List your watches |
-| `GET /watch/:id` | Get watch details |
-| `DELETE /watch/:id` | Delete a watch |
+| `POST /follow` | Create a follow — `{"topics": ["ai"], "min_score": 50}` |
+| `GET /follow` | List your follows |
+| `GET /follow/:id` | Get follow details |
+| `DELETE /follow/:id` | Delete a follow |
 
 ### Query Parameters
 
@@ -145,7 +145,7 @@ Every signal gets a score from 0-100:
 ## Self-Host
 
 ```bash
-git clone https://github.com/agentsignal/agentsignal.git
+git clone https://github.com/Ronakkadhi/agentsignal.git
 cd agentsignal
 npm install
 npm run dev
@@ -184,11 +184,11 @@ export const mySource: SourceProvider = {
 - [x] 8 real-time sources
 - [x] Signal scoring engine
 - [x] `/ask` endpoint — ask questions, get signal-grounded answers
-- [x] `/watch` — topic subscriptions for agents
+- [x] `/follow` — topic subscriptions for agents
 - [ ] More sources (Yahoo Finance, GitHub Trending, DeFi Llama, CVEs)
 - [ ] MCP server integration
 - [ ] SSE streaming
-- [ ] Webhook notifications for watches
+- [ ] Webhook notifications for follows
 
 ## License
 

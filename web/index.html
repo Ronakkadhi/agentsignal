@@ -9,15 +9,24 @@
 </head>
 <body>
   <div class="container">
-    <!-- Hero -->
-    <header class="hero">
+    <!-- Nav -->
+    <nav class="top-nav">
       <div class="logo">
         <span class="logo-icon">◈</span> AgentSignal
       </div>
+      <div class="nav-links">
+        <a href="/docs">Docs</a>
+        <a href="https://github.com/Ronakkadhi/agentsignal" target="_blank" class="btn btn-sm">⭐ Star on GitHub</a>
+      </div>
+    </nav>
+
+    <!-- Hero -->
+    <header class="hero">
+      <div class="hero-badge">Open Source · Free · No Signup</div>
       <h1>One API. Every signal.<br>Built for agents.</h1>
       <p class="subtitle">
-        Open-source ranked feed of real-time news, markets, crypto, social &amp; predictions.
-        <br>Markdown-first. No signup. One curl command.
+        Real-time ranked feed of news, markets, crypto, social & predictions.
+        <br>Markdown-first. One curl command. Your agents stay informed.
       </p>
 
       <div class="curl-block">
@@ -32,34 +41,56 @@
       </div>
 
       <div class="cta-row">
-        <a href="https://github.com/agentsignal/agentsignal" class="btn btn-primary" target="_blank">⭐ Star on GitHub</a>
-        <a href="#demo" class="btn btn-secondary">See live output ↓</a>
+        <a href="https://github.com/Ronakkadhi/agentsignal" class="btn btn-primary" target="_blank">⭐ Star on GitHub</a>
+        <a href="/docs" class="btn btn-secondary">Read Docs</a>
       </div>
     </header>
 
-    <!-- Live Demo -->
-    <section id="demo" class="section">
-      <h2>Live Feed Preview</h2>
-      <p class="section-sub">This is actual data from the API right now.</p>
-      <div class="demo-block">
-        <div class="demo-header">
-          <span class="terminal-dot red"></span>
-          <span class="terminal-dot yellow"></span>
-          <span class="terminal-dot green"></span>
-          <span class="curl-label">Response — text/markdown</span>
-        </div>
-        <pre class="demo-output" id="demo-output">Loading signals...</pre>
-      </div>
-    </section>
-
-    <!-- How It Works -->
+    <!-- How It Works — Visual Flow -->
     <section class="section">
       <h2>How It Works</h2>
+      <p class="section-sub">Your agents get ranked, real-time signals from one endpoint.</p>
+
+      <!-- Visual Diagram — Compact -->
+      <div class="flow-diagram">
+        <div class="flow-col">
+          <div class="flow-label">Sources</div>
+          <div class="flow-pills">
+            <span class="pill">📰 News</span>
+            <span class="pill">🟠 HN</span>
+            <span class="pill">🤖 Reddit</span>
+            <span class="pill">📈 Crypto</span>
+            <span class="pill">🎯 Polymarket</span>
+            <span class="pill">📄 ArXiv</span>
+            <span class="pill pill-more">+ more</span>
+          </div>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-engine">
+          <span class="flow-engine-logo">◈</span>
+          <span class="flow-engine-name">AgentSignal</span>
+          <div class="flow-engine-steps">
+            <span>Aggregate</span><span>Rank</span><span>Score</span>
+          </div>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-col">
+          <div class="flow-label">Your Agents</div>
+          <div class="flow-pills">
+            <span class="pill">🤖 Trading</span>
+            <span class="pill">📊 Research</span>
+            <span class="pill">🔍 Monitor</span>
+            <span class="pill pill-more">Any LLM</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Steps -->
       <div class="steps">
         <div class="step">
           <div class="step-num">1</div>
           <h3>Curl the feed</h3>
-          <p>One endpoint returns ranked signals from 8+ real-time sources. Markdown by default, JSON available.</p>
+          <p>One endpoint returns ranked signals from 8+ real-time sources. Markdown by default.</p>
         </div>
         <div class="step">
           <div class="step-num">2</div>
@@ -69,7 +100,91 @@
         <div class="step">
           <div class="step-num">3</div>
           <h3>Build agents that know</h3>
-          <p>Your agent reads 300 tokens instead of 5000. Ranked signals, not raw noise. Instant situational awareness.</p>
+          <p>300 tokens instead of 5000. Ranked signals, not raw noise. Instant situational awareness.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Use Cases -->
+    <section class="section">
+      <h2>Built For</h2>
+      <p class="section-sub">Every agent that needs to understand the world in real time.</p>
+      <div class="usecases-grid">
+        <div class="usecase-card">
+          <div class="usecase-icon">📈</div>
+          <h3>Trading Agents</h3>
+          <p>Feed crypto prices + Polymarket odds + breaking news into your trading logic. One call, all context.</p>
+        </div>
+        <div class="usecase-card">
+          <div class="usecase-icon">📰</div>
+          <h3>News Agents</h3>
+          <p>Monitor topics across all sources. Ranked signals instead of parsing 50 RSS feeds yourself.</p>
+        </div>
+        <div class="usecase-card">
+          <div class="usecase-icon">🔬</div>
+          <h3>Research Agents</h3>
+          <p>Track ArXiv papers, HN discussions, Reddit threads. Your agent stays current automatically.</p>
+        </div>
+        <div class="usecase-card">
+          <div class="usecase-icon">👁</div>
+          <h3>Brand Monitoring</h3>
+          <p>Follow your brand across news, social, and forums. Get scored alerts when you're mentioned.</p>
+        </div>
+        <div class="usecase-card">
+          <div class="usecase-icon">💬</div>
+          <h3>Sentiment Analysis</h3>
+          <p>Pull real-time social signals from Reddit, HN, and news. Feed them into your sentiment pipeline.</p>
+        </div>
+        <div class="usecase-card">
+          <div class="usecase-icon">🏁</div>
+          <h3>Competitor Research</h3>
+          <p>Follow competitor names as topics. Get notified on launches, press, funding, and product changes.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- API Examples — Merged -->
+    <section class="section">
+      <h2>Three Ways to Use</h2>
+      <p class="section-sub">Pull signals. Ask questions. Follow topics.</p>
+
+      <div class="api-examples">
+        <!-- Pull -->
+        <div class="api-example">
+          <div class="api-example-header">
+            <span class="api-example-badge pull">Pull</span>
+            <span class="api-example-title">Get ranked signals</span>
+          </div>
+          <div class="curl-block compact">
+            <pre class="curl-command"><code>curl agentsignal.co/feed?topic=ai&min_score=70</code></pre>
+          </div>
+        </div>
+
+        <!-- Ask -->
+        <div class="api-example">
+          <div class="api-example-header">
+            <span class="api-example-badge ask">Ask</span>
+            <span class="api-example-title">Push a question, get a signal-grounded answer</span>
+          </div>
+          <div class="curl-block compact">
+            <pre class="curl-command"><code>curl -X POST agentsignal.co/ask \
+  -d '{"q": "What happened to crypto today?"}'</code></pre>
+          </div>
+        </div>
+
+        <!-- Follow -->
+        <div class="api-example">
+          <div class="api-example-header">
+            <span class="api-example-badge follow">Follow</span>
+            <span class="api-example-title">Subscribe to topics, get a personalized feed</span>
+          </div>
+          <div class="curl-block compact">
+            <pre class="curl-command"><code>curl -X POST agentsignal.co/follow \
+  -d '{"topics": ["ai", "regulation"], "min_score": 60}'
+
+# Then poll your feed:
+curl agentsignal.co/feed?follow=f_abc123</code></pre>
+          </div>
         </div>
       </div>
     </section>
@@ -119,10 +234,10 @@
           <strong>USGS</strong>
           <span>Real-time earthquakes</span>
         </div>
-        <div class="source-card source-add">
+        <a href="https://github.com/Ronakkadhi/agentsignal" target="_blank" class="source-card source-add">
           <strong>+ Add a source</strong>
           <span>Open source — PRs welcome</span>
-        </div>
+        </a>
       </div>
     </section>
 
@@ -131,101 +246,55 @@
       <h2>API</h2>
       <div class="api-table">
         <div class="api-row">
-          <code class="api-method">GET</code>
+          <code class="api-method get">GET</code>
           <code class="api-path">/feed</code>
           <span>Ranked markdown feed</span>
         </div>
         <div class="api-row">
-          <code class="api-method">GET</code>
+          <code class="api-method get">GET</code>
           <code class="api-path">/feed?format=json</code>
           <span>Structured JSON</span>
         </div>
         <div class="api-row">
-          <code class="api-method">GET</code>
+          <code class="api-method get">GET</code>
           <code class="api-path">/feed?topic=ai&amp;min_score=70</code>
           <span>Filtered high-signal only</span>
         </div>
         <div class="api-row">
-          <code class="api-method">GET</code>
-          <code class="api-path">/feed?after=&lt;timestamp&gt;</code>
-          <span>Delta updates (only new)</span>
-        </div>
-        <div class="api-row">
-          <code class="api-method">POST</code>
+          <code class="api-method post">POST</code>
           <code class="api-path">/ask</code>
           <span>Ask a question, get signal-grounded answer</span>
         </div>
         <div class="api-row">
-          <code class="api-method">POST</code>
-          <code class="api-path">/watch</code>
-          <span>Create topic subscription</span>
+          <code class="api-method post">POST</code>
+          <code class="api-path">/follow</code>
+          <span>Follow topics — personalized feed</span>
         </div>
         <div class="api-row">
-          <code class="api-method">GET</code>
-          <code class="api-path">/feed?watch=&lt;id&gt;</code>
-          <span>Personalized watch feed</span>
+          <code class="api-method get">GET</code>
+          <code class="api-path">/feed?follow=&lt;id&gt;</code>
+          <span>Your personalized follow feed</span>
         </div>
         <div class="api-row">
-          <code class="api-method">GET</code>
+          <code class="api-method get">GET</code>
           <code class="api-path">/sources</code>
           <span>List active sources</span>
         </div>
       </div>
     </section>
 
-    <!-- Ask Demo -->
-    <section class="section">
-      <h2>Ask Anything</h2>
-      <p class="section-sub">Push a question, get an answer grounded in real-time signals.</p>
-      <div class="curl-block" style="max-width: 640px; margin: 0 auto;">
-        <div class="curl-header">
+    <!-- Live Demo (moved down) -->
+    <section id="demo" class="section">
+      <h2>Live Feed Preview</h2>
+      <p class="section-sub">This is actual data from the API right now. Auto-refreshes every 60s.</p>
+      <div class="demo-block">
+        <div class="demo-header">
           <span class="terminal-dot red"></span>
           <span class="terminal-dot yellow"></span>
           <span class="terminal-dot green"></span>
-          <span class="curl-label">Terminal</span>
+          <span class="curl-label">Response — text/markdown</span>
         </div>
-        <pre class="curl-command" style="font-size: 14px;"><code>curl -X POST agentsignal.co/ask \
-  -H "Content-Type: application/json" \
-  -d '{"q": "What happened to crypto today?"}'</code></pre>
-      </div>
-    </section>
-
-    <!-- Watch Demo -->
-    <section class="section">
-      <h2>Watch Topics</h2>
-      <p class="section-sub">Subscribe to topics. Your agent gets a personalized, filtered feed.</p>
-      <div class="curl-block" style="max-width: 640px; margin: 0 auto;">
-        <div class="curl-header">
-          <span class="terminal-dot red"></span>
-          <span class="terminal-dot yellow"></span>
-          <span class="terminal-dot green"></span>
-          <span class="curl-label">Terminal</span>
-        </div>
-        <pre class="curl-command" style="font-size: 14px;"><code>curl -X POST agentsignal.co/watch \
-  -d '{"topics": ["ai", "regulation"], "min_score": 60}'
-
-# → {"watch_id": "w_abc123", "feed_url": "/feed?watch=w_abc123"}
-
-curl agentsignal.co/feed?watch=w_abc123</code></pre>
-      </div>
-    </section>
-
-    <!-- Use Cases -->
-    <section class="section">
-      <h2>Built For</h2>
-      <div class="steps">
-        <div class="step">
-          <h3>🤖 Trading Agents</h3>
-          <p>Feed crypto prices + Polymarket odds + news into your trading logic. One call, all context.</p>
-        </div>
-        <div class="step">
-          <h3>📰 News Agents</h3>
-          <p>Monitor topics across all sources. Get ranked signals instead of parsing 50 RSS feeds yourself.</p>
-        </div>
-        <div class="step">
-          <h3>🔬 Research Agents</h3>
-          <p>Track ArXiv papers, HN discussions, Reddit threads. Your agent stays current without you wiring up data pipes.</p>
-        </div>
+        <pre class="demo-output" id="demo-output">Loading signals...</pre>
       </div>
     </section>
 
@@ -237,7 +306,7 @@ curl agentsignal.co/feed?watch=w_abc123</code></pre>
         </div>
         <p>Open source signal feed for AI agents.</p>
         <div class="footer-links">
-          <a href="https://github.com/agentsignal/agentsignal" target="_blank">GitHub</a>
+          <a href="https://github.com/Ronakkadhi/agentsignal" target="_blank">GitHub</a>
           <a href="/docs">Docs</a>
           <a href="/feed">API Feed</a>
           <a href="/sources">Sources</a>
