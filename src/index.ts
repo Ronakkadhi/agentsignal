@@ -6,6 +6,7 @@ import { feed } from "./api/feed.js";
 import { sourcesApi } from "./api/sources.js";
 import { ask } from "./api/ask.js";
 import { follow } from "./api/follow.js";
+import { webhooks } from "./api/webhooks.js";
 import { startScheduler } from "./scheduler/cron.js";
 
 const app = new Hono();
@@ -51,6 +52,7 @@ function rateLimitMiddleware(path: string) {
 app.use("/feed/*", rateLimitMiddleware("/feed"));
 app.use("/sources/*", rateLimitMiddleware("/sources"));
 app.use("/follow/*", rateLimitMiddleware("/follow"));
+app.use("/webhooks/*", rateLimitMiddleware("/webhooks"));
 // /ask has its own stricter rate limit (20/hr) built in
 
 // Clean up rate limit map every 10 minutes
@@ -66,6 +68,7 @@ app.route("/feed", feed);
 app.route("/sources", sourcesApi);
 app.route("/ask", ask);
 app.route("/follow", follow);
+app.route("/webhooks", webhooks);
 
 // Health check
 app.get("/health", (c) => {
@@ -80,6 +83,11 @@ app.get("/health", (c) => {
 // Docs page
 app.get("/docs", (c) => {
   return c.redirect("/docs.html");
+});
+
+// Use cases page
+app.get("/use-cases", (c) => {
+  return c.redirect("/use-cases.html");
 });
 
 // Serve landing page static files
@@ -104,6 +112,8 @@ console.log(`
     POST /ask               → Ask questions (LLM-powered)
     POST /follow            → Create topic subscription
     GET  /feed?follow=<id>  → Filtered follow feed
+    POST /webhooks           → Register webhook
+    GET  /webhooks           → List webhooks
     GET  /sources           → Active sources
     GET  /health            → Health check
 

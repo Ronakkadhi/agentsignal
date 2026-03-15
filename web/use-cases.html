@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AgentSignal — Use Cases</title>
+  <meta name="description" content="How teams use AgentSignal to power their AI agents with real-time signals. Trading, research, alerts, competitive intel, and more.">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .uc-container { max-width: 800px; margin: 0 auto; padding: 40px 24px 80px; }
+    .uc-hero { text-align: center; padding: 60px 0 48px; }
+    .uc-hero h1 { font-size: 42px; margin-bottom: 12px; }
+    .uc-hero p { color: var(--text-dim); font-size: 18px; max-width: 560px; margin: 0 auto; }
+
+    .uc-item { padding: 48px 0; border-top: 1px solid var(--border); }
+    .uc-item:first-of-type { border-top: none; }
+
+    .uc-num { display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 10px; background: var(--accent-dim); color: var(--accent); font-weight: 700; font-size: 16px; margin-bottom: 16px; }
+    .uc-item h2 { font-size: 26px; text-align: left; margin-bottom: 12px; }
+    .uc-item > p { color: var(--text-dim); font-size: 15px; margin-bottom: 20px; line-height: 1.7; }
+
+    .uc-block { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; margin-bottom: 16px; }
+    .uc-block-header { display: flex; align-items: center; gap: 8px; padding: 10px 16px; background: var(--surface-2); border-bottom: 1px solid var(--border); font-size: 12px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.05em; }
+    .uc-block pre { padding: 16px 20px; font-size: 13px; color: var(--green); overflow-x: auto; white-space: pre-wrap; word-break: break-all; margin: 0; }
+    .uc-block pre code::before { content: '$ '; color: var(--text-dim); }
+    .uc-block.output pre { color: var(--text-dim); }
+    .uc-block.output pre code::before { content: ''; }
+
+    .uc-tags { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; }
+    .uc-tag { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 4px 10px; font-size: 12px; color: var(--text-dim); }
+    .uc-tag.highlight { border-color: var(--accent); color: var(--accent); background: var(--accent-dim); }
+  </style>
+</head>
+<body>
+  <div class="uc-container">
+    <nav class="top-nav" style="border-bottom: 1px solid var(--border); padding: 20px 0;">
+      <div class="logo">
+        <a href="/" style="color: var(--text); text-decoration: none;"><span class="logo-icon">◈</span> AgentSignal</a>
+      </div>
+      <div class="nav-links">
+        <a href="/docs">Docs</a>
+        <a href="https://github.com/Ronakkadhi/agentsignal" target="_blank" class="btn btn-sm">Star on GitHub</a>
+      </div>
+    </nav>
+
+    <div class="uc-hero">
+      <h1>Use Cases</h1>
+      <p>One API powering agents across trading, research, monitoring, and more. Here's how teams use AgentSignal.</p>
+    </div>
+
+    <!-- 1. Trading Agent -->
+    <div class="uc-item">
+      <div class="uc-num">1</div>
+      <h2>Trading Agent — Market Signals + Predictions</h2>
+      <p>Feed your trading agent crypto prices from CoinGecko, prediction market odds from Polymarket, and breaking financial news — all in one call. Entity-aware scoring detects when the same asset is trending across multiple sources, boosting the signal score.</p>
+      <div class="uc-tags">
+        <span class="uc-tag highlight">market</span>
+        <span class="uc-tag highlight">events</span>
+        <span class="uc-tag">CoinGecko</span>
+        <span class="uc-tag">Polymarket</span>
+        <span class="uc-tag">Google News</span>
+      </div>
+      <div class="uc-block">
+        <div class="uc-block-header">Request</div>
+        <pre><code>curl "agentsignal.co/feed?type=market,events&min_score=60&format=json"</code></pre>
+      </div>
+      <div class="uc-block output">
+        <div class="uc-block-header">Response (truncated)</div>
+        <pre><code>{
+  "ok": true,
+  "count": 12,
+  "latest_id": "sig_cg_btc_1710412200",
+  "signals": [
+    {
+      "id": "sig_cg_btc_1710412200",
+      "type": "market",
+      "source": "coingecko",
+      "title": "Bitcoin (BTC): $83,150.00",
+      "score": 82,
+      "topics": ["crypto", "bitcoin", "markets"],
+      "metadata": { "price": 83150, "change24h": -4.2 }
+    },
+    {
+      "id": "sig_pm_rate_cut",
+      "type": "events",
+      "source": "polymarket",
+      "title": "Fed rate cut by June 2026?",
+      "score": 71,
+      "metadata": { "yes": 0.41, "volume": 2840000 }
+    }
+  ]
+}</code></pre>
+      </div>
+    </div>
+
+    <!-- 2. Research Agent -->
+    <div class="uc-item">
+      <div class="uc-num">2</div>
+      <h2>Research Agent — Papers + Community Discussions</h2>
+      <p>Track the latest AI/ML research from ArXiv alongside community discussions on Hacker News and Reddit. Use historical replay to search the past 7 days for any topic your agent missed.</p>
+      <div class="uc-tags">
+        <span class="uc-tag highlight">science</span>
+        <span class="uc-tag highlight">social</span>
+        <span class="uc-tag">ArXiv</span>
+        <span class="uc-tag">Hacker News</span>
+        <span class="uc-tag">Reddit</span>
+      </div>
+      <div class="uc-block">
+        <div class="uc-block-header">Request — latest LLM papers + discussion</div>
+        <pre><code>curl "agentsignal.co/feed?source=arxiv,hackernews,reddit&topic=llm&format=json"</code></pre>
+      </div>
+      <div class="uc-block">
+        <div class="uc-block-header">Request — historical replay: what happened in AI this week?</div>
+        <pre><code>curl "agentsignal.co/feed?topic=ai&from=2026-03-08T00:00:00Z&to=2026-03-15T00:00:00Z&min_score=60&format=json"</code></pre>
+      </div>
+    </div>
+
+    <!-- 3. Real-time Alert Agent -->
+    <div class="uc-item">
+      <div class="uc-num">3</div>
+      <h2>Alert Agent — Webhooks for Real-time Push</h2>
+      <p>Instead of polling, register a webhook and AgentSignal pushes matching signals to your agent in real time. Built-in retry with exponential backoff. Dead agent detection after 10 consecutive failures.</p>
+      <div class="uc-tags">
+        <span class="uc-tag highlight">webhooks</span>
+        <span class="uc-tag highlight">real-time</span>
+        <span class="uc-tag">push notifications</span>
+      </div>
+      <div class="uc-block">
+        <div class="uc-block-header">Register a webhook</div>
+        <pre><code>curl -X POST agentsignal.co/webhooks \
+  -H "Content-Type: application/json" \
+  -d '{"url": "https://your-agent.com/signals", "topics": ["ai", "crypto"], "min_score": 70}'</code></pre>
+      </div>
+      <div class="uc-block output">
+        <div class="uc-block-header">Payload delivered to your endpoint</div>
+        <pre><code>{
+  "event": "new_signals",
+  "timestamp": "2026-03-14T10:30:00Z",
+  "webhook_id": "wh_abc123",
+  "signals": [
+    {
+      "id": "sig_gn_ai_bill",
+      "title": "Breaking: Major AI regulation bill passed",
+      "score": 88,
+      "source": "google-news",
+      "type": "news"
+    }
+  ]
+}</code></pre>
+      </div>
+    </div>
+
+    <!-- 4. Efficient Polling Agent -->
+    <div class="uc-item">
+      <div class="uc-num">4</div>
+      <h2>Efficient Polling — Delta Updates</h2>
+      <p>For agents that poll, AgentSignal supports three delta mechanisms: cursor-based pagination (<code>since_id</code>), HTTP conditional requests (ETag/304), and timestamp-based queries. Zero wasted tokens when nothing changed.</p>
+      <div class="uc-tags">
+        <span class="uc-tag highlight">since_id</span>
+        <span class="uc-tag highlight">ETag</span>
+        <span class="uc-tag highlight">304</span>
+        <span class="uc-tag">efficient polling</span>
+      </div>
+      <div class="uc-block">
+        <div class="uc-block-header">Cursor-based delta</div>
+        <pre><code>curl "agentsignal.co/feed?format=json&since_id=sig_hn_12345"</code></pre>
+      </div>
+      <div class="uc-block">
+        <div class="uc-block-header">Conditional request (ETag)</div>
+        <pre><code>curl -H 'If-None-Match: "a1b2c3d4e5f6"' agentsignal.co/feed</code></pre>
+      </div>
+      <div class="uc-block output">
+        <div class="uc-block-header">Response when nothing changed</div>
+        <pre><code>HTTP/1.1 304 Not Modified
+(empty body — zero tokens consumed)</code></pre>
+      </div>
+    </div>
+
+    <!-- 5. Q&A Agent -->
+    <div class="uc-item">
+      <div class="uc-num">5</div>
+      <h2>Q&A Agent — Signal-Grounded Answers</h2>
+      <p>Ask natural language questions and get answers grounded in real-time signals. Powered by Claude with full context from the signal feed. Great for chatbots, copilots, and daily briefings.</p>
+      <div class="uc-tags">
+        <span class="uc-tag highlight">ask</span>
+        <span class="uc-tag">Claude</span>
+        <span class="uc-tag">natural language</span>
+      </div>
+      <div class="uc-block">
+        <div class="uc-block-header">Request</div>
+        <pre><code>curl -X POST agentsignal.co/ask \
+  -H "Content-Type: application/json" \
+  -d '{"q": "What are the biggest AI developments in the last 24 hours?", "lookback": "24h"}'</code></pre>
+      </div>
+      <div class="uc-block output">
+        <div class="uc-block-header">Response</div>
+        <pre><code>Three major AI developments in the last 24 hours:
+
+1. Congress passed the AI Safety Act with bipartisan support,
+   requiring safety evaluations for frontier models (score: 88)
+
+2. Google DeepMind published a breakthrough paper on reasoning
+   in LLMs, trending on ArXiv and Hacker News (score: 76)
+
+3. OpenAI announced GPT-5 preview access for enterprise
+   customers, with Reddit and HN heavily discussing pricing (score: 82)</code></pre>
+      </div>
+    </div>
+
+    <!-- 6. Competitive Intel -->
+    <div class="uc-item">
+      <div class="uc-num">6</div>
+      <h2>Competitive Intelligence — Follow + Monitor</h2>
+      <p>Create a Follow subscription for competitor names. AgentSignal tracks mentions across all 8 sources — news, social, research, markets. Combine with webhooks for instant alerts on competitor activity.</p>
+      <div class="uc-tags">
+        <span class="uc-tag highlight">follow</span>
+        <span class="uc-tag highlight">monitoring</span>
+        <span class="uc-tag">brand tracking</span>
+      </div>
+      <div class="uc-block">
+        <div class="uc-block-header">Create a follow</div>
+        <pre><code>curl -X POST agentsignal.co/follow \
+  -H "Content-Type: application/json" \
+  -d '{"topics": ["openai", "anthropic", "google deepmind"], "min_score": 40}'</code></pre>
+      </div>
+      <div class="uc-block output">
+        <div class="uc-block-header">Response</div>
+        <pre><code>{
+  "ok": true,
+  "follow_id": "f_comp_intel",
+  "topics": ["openai", "anthropic", "google deepmind"],
+  "min_score": 40,
+  "feed_url": "/feed?follow=f_comp_intel"
+}</code></pre>
+      </div>
+      <div class="uc-block">
+        <div class="uc-block-header">Poll your personalized competitive feed</div>
+        <pre><code>curl "agentsignal.co/feed?follow=f_comp_intel&format=json"</code></pre>
+      </div>
+    </div>
+
+    <!-- 7. Markdown for LLMs -->
+    <div class="uc-item">
+      <div class="uc-num">7</div>
+      <h2>LLM Context Window — Markdown Feed</h2>
+      <p>The default markdown output is designed to be pasted directly into an LLM's context window. Ranked, concise, and structured — your agent gets situational awareness in ~300 tokens instead of parsing raw HTML from 8 different sources.</p>
+      <div class="uc-tags">
+        <span class="uc-tag highlight">markdown</span>
+        <span class="uc-tag">LLM-optimized</span>
+        <span class="uc-tag">300 tokens</span>
+      </div>
+      <div class="uc-block">
+        <div class="uc-block-header">Request — default markdown</div>
+        <pre><code>curl agentsignal.co/feed?min_score=70&limit=5</code></pre>
+      </div>
+      <div class="uc-block output">
+        <div class="uc-block-header">Response — text/markdown</div>
+        <pre><code># AgentSignal Feed — 2026-03-14T10:30:00Z
+
+## High Signal (80+)
+- [88] Congress passes AI Safety Act (google-news)
+- [82] Bitcoin drops 4.2% to $83,150 after Fed comments (coingecko)
+
+## Notable (70-79)
+- [76] New ArXiv paper: Reasoning in Large Language Models (arxiv)
+- [71] Fed rate cut odds drop to 41% on Polymarket (polymarket)
+- [70] Show HN: Open source signal feed for AI agents (hackernews)</code></pre>
+      </div>
+    </div>
+
+    <footer style="margin-top: 48px; padding-top: 24px; border-top: 1px solid var(--border); text-align: center;">
+      <div class="logo"><span class="logo-icon">◈</span> AgentSignal</div>
+      <p style="color: var(--text-dim); margin-top: 8px;">Open source signal feed for AI agents.</p>
+      <div style="display: flex; gap: 24px; justify-content: center; margin-top: 12px;">
+        <a href="/" style="color: var(--text-dim); text-decoration: none;">Home</a>
+        <a href="/docs" style="color: var(--text-dim); text-decoration: none;">Docs</a>
+        <a href="https://github.com/Ronakkadhi/agentsignal" style="color: var(--text-dim); text-decoration: none;">GitHub</a>
+        <a href="/feed" style="color: var(--text-dim); text-decoration: none;">API Feed</a>
+      </div>
+    </footer>
+  </div>
+</body>
+</html>

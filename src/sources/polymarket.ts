@@ -1,6 +1,7 @@
 import { Signal, SourceProvider } from "../types.js";
 
-const POLYMARKET_URL = "https://gamma-api.polymarket.com/markets?limit=20&active=true&order=volume&ascending=false";
+const POLYMARKET_URL = "https://gamma-api.polymarket.com/markets?limit=40&active=true&order=volume&ascending=false";
+const MIN_VOLUME = 10_000; // $10K minimum volume to filter noise
 
 interface PolymarketEvent {
   id: string;
@@ -28,7 +29,18 @@ export const polymarket: SourceProvider = {
     const markets: PolymarketEvent[] = await res.json();
 
     return markets
-      .filter((m) => m.active && m.question)
+      .filter((m) => {
+        if (!m.active || !m.question) return false;
+        const vol = parseFloat(m.volume || "0");
+        if (vol < MIN_VOLUME) return false;
+        // Filter expired markets that slipped through the API
+        if (m.endDate) {
+          const end = new Date(m.endDate).getTime();
+          if (end < Date.now()) return false;
+        }
+        return true;
+      })
+      .slice(0, 20) // Keep top 20 after filtering
       .map((market) => {
         let prices: number[] = [];
         try {
@@ -54,7 +66,7 @@ export const polymarket: SourceProvider = {
           title: market.question,
           summary: oddsStr || "No odds available",
           url: `https://polymarket.com/event/${market.slug}`,
-          topics: inferEventTopics(market.question),
+          topics: ["predictions"], // Base topic; extraction pipeline adds more
           score: 0,
           metadata: {
             odds: Object.fromEntries(outcomes.map((o, i) => [o, prices[i] ?? 0])),
@@ -67,35 +79,4 @@ export const polymarket: SourceProvider = {
   },
 };
 
-function inferEventTopics(question: string): string[] {
-  const topics: string[] = ["predictions"];
-  const lower = question.toLowerCase();
-  const keywords: Record<string, string> = {
-    trump: "politics",
-    biden: "politics",
-    election: "politics",
-    president: "politics",
-    bitcoin: "crypto",
-    ethereum: "crypto",
-    crypto: "crypto",
-    "fed ": "finance",
-    "interest rate": "finance",
-    "stock market": "finance",
-    war: "geopolitics",
-    ukraine: "geopolitics",
-    china: "geopolitics",
-    ai: "ai",
-    openai: "ai",
-    "super bowl": "sports",
-    nba: "sports",
-    nfl: "sports",
-  };
-
-  for (const [keyword, topic] of Object.entries(keywords)) {
-    if (lower.includes(keyword) && !topics.includes(topic)) {
-      topics.push(topic);
-    }
-  }
-
-  return topics;
-}
+// inferEventTopics removed — central extraction in src/extraction/topics.ts

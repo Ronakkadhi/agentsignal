@@ -1,5 +1,5 @@
 import { Hono } from "hono";
-import { store } from "../store/memory.js";
+import { store } from "../store/sqlite.js";
 
 const sourcesApi = new Hono();
 

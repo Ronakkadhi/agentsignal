@@ -1,6 +1,6 @@
 import { Hono } from "hono";
 import Anthropic from "@anthropic-ai/sdk";
-import { store } from "../store/memory.js";
+import { store } from "../store/sqlite.js";
 import { Signal } from "../types.js";
 
 const ask = new Hono();

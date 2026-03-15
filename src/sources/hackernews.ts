@@ -45,7 +45,7 @@ export const hackernews: SourceProvider = {
         title: item.title,
         summary: `${item.score} points by ${item.by} | ${item.descendants ?? 0} comments`,
         url: item.url || `https://news.ycombinator.com/item?id=${item.id}`,
-        topics: inferTopics(item.title),
+        topics: [], // Populated by central extraction pipeline
         score: 0,
         metadata: {
           score: item.score,
@@ -56,38 +56,4 @@ export const hackernews: SourceProvider = {
   },
 };
 
-function inferTopics(title: string): string[] {
-  const topics: string[] = [];
-  const lower = title.toLowerCase();
-  const keywords: Record<string, string> = {
-    ai: "ai",
-    "machine learning": "ml",
-    llm: "ai",
-    gpt: "ai",
-    claude: "ai",
-    rust: "rust",
-    python: "python",
-    javascript: "javascript",
-    typescript: "javascript",
-    react: "frontend",
-    startup: "startups",
-    "show hn": "show-hn",
-    crypto: "crypto",
-    bitcoin: "crypto",
-    security: "security",
-    linux: "linux",
-    apple: "apple",
-    google: "google",
-    openai: "ai",
-    anthropic: "ai",
-  };
-
-  for (const [keyword, topic] of Object.entries(keywords)) {
-    if (lower.includes(keyword) && !topics.includes(topic)) {
-      topics.push(topic);
-    }
-  }
-
-  if (topics.length === 0) topics.push("tech");
-  return topics;
-}
+// inferTopics removed — central extraction in src/extraction/topics.ts

@@ -30,3 +30,28 @@ export interface SourceStatus {
 }
 
 export type OutputFormat = "json" | "markdown";
+
+export interface ExtractedEntities {
+  tickers: string[];
+  companies: string[];
+  people: string[];
+}
+
+export interface WebhookConfig {
+  id: string;
+  url: string;
+  topics?: string[];
+  minScore: number;
+  createdAt: string;
+  consecutiveFailures: number;
+  dead: boolean;
+  ip: string;
+}
+
+export interface Enrichment {
+  signalId: string;
+  entities: ExtractedEntities;
+  oneLiner: string;
+  category: string;
+  enrichedAt: string;
+}

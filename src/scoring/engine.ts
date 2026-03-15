@@ -1,53 +1,90 @@
-import { Signal } from "../types.js";
+import { Signal, ExtractedEntities } from "../types.js";
 
 /**
- * Signal Scoring Engine
+ * Signal Scoring Engine v2
  *
  * Scores each signal 0-100 based on:
- * - Engagement (30%): upvotes, comments, volume — normalized per source
- * - Recency (25%): exponential decay from publish time
+ * - Engagement (30%): upvotes, comments, volume — type-aware normalization
+ * - Recency (25%): exponential decay, with developing story boost
  * - Magnitude (20%): price change %, earthquake magnitude, odds shift
- * - Cross-source (15%): same story across multiple sources
- * - Source authority (10%): wire services > blogs
+ * - Cross-source (15%): entity-based matching across sources
+ * - Source authority (10%): topic-dependent authority scores
  */
 
-const SOURCE_AUTHORITY: Record<string, number> = {
-  // Wire services / major outlets (high authority)
-  "google-news": 85,
-  reuters: 90,
-  bbc: 90,
-  "ars-technica": 75,
-  "the-verge": 70,
-  techcrunch: 75,
-
-  // Structured data sources (high reliability)
-  coingecko: 80,
-  polymarket: 75,
-  "usgs-earthquakes": 95,
-  arxiv: 80,
-
-  // Community/social (variable)
-  hackernews: 65,
-  reddit: 55,
-  "rss-feeds": 70,
+// Type-aware engagement multipliers
+// News/science engagement is harder to get, so same raw score means more
+const TYPE_ENGAGEMENT_MULTIPLIER: Record<string, number> = {
+  news: 1.5,
+  science: 2.0,
+  geo: 1.0,
+  market: 1.0,
+  social: 1.0,
+  events: 1.0,
 };
+
+// 2D authority: source → { signalType → score }
+const SOURCE_AUTHORITY: Record<string, Record<string, number>> = {
+  "google-news": { news: 85, default: 70 },
+  "rss-feeds": { news: 75, default: 60 },
+  coingecko: { market: 85, default: 40 },
+  polymarket: { events: 80, market: 75, default: 50 },
+  "usgs-earthquakes": { geo: 95, default: 30 },
+  arxiv: { science: 90, default: 50 },
+  hackernews: { social: 65, default: 55 },
+  reddit: { social: 55, default: 45 },
+};
+
+// Entity cluster for developing story detection
+interface EntityCluster {
+  sources: Set<string>;
+  timestamps: number[];
+}
 
 export function scoreSignals(signals: Signal[]): Signal[] {
   const now = Date.now();
 
-  // Build cross-source map: normalize titles for matching
-  const titleMap = new Map<string, string[]>();
+  // Build entity map for cross-source matching
+  const entitySourceMap = new Map<string, string[]>();
+  // Build entity cluster map for developing story detection
+  const entityClusters = new Map<string, EntityCluster>();
+
   for (const s of signals) {
-    const key = normalizeTitle(s.title);
-    if (!titleMap.has(key)) titleMap.set(key, []);
-    titleMap.get(key)!.push(s.source);
+    const entities = s.metadata?.entities as ExtractedEntities | undefined;
+    const signalTime = new Date(s.timestamp).getTime();
+
+    // Index by entities (companies, people, tickers)
+    const entityKeys: string[] = [];
+    if (entities) {
+      entityKeys.push(...(entities.companies || []).map((c) => c.toLowerCase()));
+      entityKeys.push(...(entities.people || []).map((p) => p.toLowerCase()));
+      entityKeys.push(...(entities.tickers || []).map((t) => t.toLowerCase()));
+    }
+
+    for (const key of entityKeys) {
+      // Cross-source map
+      if (!entitySourceMap.has(key)) entitySourceMap.set(key, []);
+      entitySourceMap.get(key)!.push(s.source);
+
+      // Developing story clusters
+      if (!entityClusters.has(key)) {
+        entityClusters.set(key, { sources: new Set(), timestamps: [] });
+      }
+      const cluster = entityClusters.get(key)!;
+      cluster.sources.add(s.source);
+      cluster.timestamps.push(signalTime);
+    }
+
+    // Also index by normalized title (fallback for signals without extracted entities)
+    const titleKey = normalizeTitle(s.title);
+    if (!entitySourceMap.has(titleKey)) entitySourceMap.set(titleKey, []);
+    entitySourceMap.get(titleKey)!.push(s.source);
   }
 
   return signals.map((signal) => {
     const engagement = scoreEngagement(signal);
-    const recency = scoreRecency(signal, now);
+    const recency = scoreRecency(signal, now, entityClusters);
     const magnitude = scoreMagnitude(signal);
-    const crossSource = scoreCrossSource(signal, titleMap);
+    const crossSource = scoreCrossSource(signal, entitySourceMap);
     const authority = scoreAuthority(signal);
 
     const score = Math.round(
@@ -64,73 +101,107 @@ export function scoreSignals(signals: Signal[]): Signal[] {
 
 function scoreEngagement(signal: Signal): number {
   const meta = signal.metadata || {};
+  let raw = 0;
 
   // HN: score based on points
   if (signal.source === "hackernews") {
     const points = (meta.score as number) || 0;
-    if (points >= 500) return 100;
-    if (points >= 200) return 80;
-    if (points >= 100) return 60;
-    if (points >= 50) return 40;
-    return 20;
+    if (points >= 500) raw = 100;
+    else if (points >= 200) raw = 80;
+    else if (points >= 100) raw = 60;
+    else if (points >= 50) raw = 40;
+    else raw = 20;
   }
-
   // Reddit: score based on upvotes
-  if (signal.source === "reddit") {
+  else if (signal.source === "reddit") {
     const score = (meta.score as number) || 0;
-    if (score >= 5000) return 100;
-    if (score >= 1000) return 80;
-    if (score >= 500) return 60;
-    if (score >= 100) return 40;
-    return 20;
+    if (score >= 5000) raw = 100;
+    else if (score >= 1000) raw = 80;
+    else if (score >= 500) raw = 60;
+    else if (score >= 100) raw = 40;
+    else raw = 20;
   }
-
   // CoinGecko: score based on 24h volume
-  if (signal.source === "coingecko") {
+  else if (signal.source === "coingecko") {
     const volume = (meta.volume24h as number) || 0;
-    if (volume >= 1e10) return 100; // $10B+
-    if (volume >= 1e9) return 80;
-    if (volume >= 1e8) return 60;
-    if (volume >= 1e7) return 40;
-    return 20;
+    if (volume >= 1e10) raw = 100;
+    else if (volume >= 1e9) raw = 80;
+    else if (volume >= 1e8) raw = 60;
+    else if (volume >= 1e7) raw = 40;
+    else raw = 20;
   }
-
   // Polymarket: score based on volume
-  if (signal.source === "polymarket") {
+  else if (signal.source === "polymarket") {
     const volume = (meta.volume as number) || 0;
-    if (volume >= 1e7) return 100;
-    if (volume >= 1e6) return 80;
-    if (volume >= 1e5) return 60;
-    if (volume >= 1e4) return 40;
-    return 20;
+    if (volume >= 1e7) raw = 100;
+    else if (volume >= 1e6) raw = 80;
+    else if (volume >= 1e5) raw = 60;
+    else if (volume >= 1e4) raw = 40;
+    else raw = 20;
   }
-
   // USGS: score based on USGS significance
-  if (signal.source === "usgs-earthquakes") {
+  else if (signal.source === "usgs-earthquakes") {
     const sig = (meta.significance as number) || 0;
-    if (sig >= 600) return 100;
-    if (sig >= 400) return 80;
-    if (sig >= 200) return 60;
-    if (sig >= 100) return 40;
-    return 20;
+    if (sig >= 600) raw = 100;
+    else if (sig >= 400) raw = 80;
+    else if (sig >= 200) raw = 60;
+    else if (sig >= 100) raw = 40;
+    else raw = 20;
+  }
+  // Default: moderate engagement for news sources
+  else {
+    raw = 50;
   }
 
-  // Default: moderate engagement for news sources
-  return 50;
+  // Apply type-aware multiplier
+  const multiplier = TYPE_ENGAGEMENT_MULTIPLIER[signal.type] ?? 1.0;
+  return Math.min(100, Math.round(raw * multiplier));
 }
 
-function scoreRecency(signal: Signal, now: number): number {
+function scoreRecency(
+  signal: Signal,
+  now: number,
+  entityClusters: Map<string, EntityCluster>
+): number {
   const ageMs = now - new Date(signal.timestamp).getTime();
   const ageMinutes = ageMs / 60_000;
 
-  // Exponential decay: 100 at 0min, ~50 at 30min, ~25 at 1hr, ~5 at 2hr
-  if (ageMinutes <= 5) return 100;
-  if (ageMinutes <= 15) return 90;
-  if (ageMinutes <= 30) return 75;
-  if (ageMinutes <= 60) return 55;
-  if (ageMinutes <= 120) return 35;
-  if (ageMinutes <= 360) return 20;
-  return 10;
+  // Base recency score with exponential decay
+  let base: number;
+  if (ageMinutes <= 5) base = 100;
+  else if (ageMinutes <= 15) base = 90;
+  else if (ageMinutes <= 30) base = 75;
+  else if (ageMinutes <= 60) base = 55;
+  else if (ageMinutes <= 120) base = 35;
+  else if (ageMinutes <= 360) base = 20;
+  else base = 10;
+
+  // Developing story boost: if same entity appears in 3+ signals
+  // from different sources within 2 hours, boost instead of decay
+  const entities = signal.metadata?.entities as ExtractedEntities | undefined;
+  if (entities) {
+    const allKeys = [
+      ...(entities.companies || []),
+      ...(entities.people || []),
+      ...(entities.tickers || []),
+    ].map((k) => k.toLowerCase());
+
+    for (const key of allKeys) {
+      const cluster = entityClusters.get(key);
+      if (!cluster) continue;
+
+      // Check if 3+ unique sources mention this entity within 2 hours
+      const recentTimestamps = cluster.timestamps.filter(
+        (t) => now - t < 2 * 60 * 60 * 1000
+      );
+      if (cluster.sources.size >= 3 && recentTimestamps.length >= 3) {
+        // Developing story — boost by 15 points
+        return Math.min(100, base + 15);
+      }
+    }
+  }
+
+  return base;
 }
 
 function scoreMagnitude(signal: Signal): number {
@@ -156,43 +227,64 @@ function scoreMagnitude(signal: Signal): number {
     return 20;
   }
 
-  // Polymarket: check if odds are extreme (very likely/unlikely = interesting)
+  // Polymarket: check if odds are extreme
   if (signal.source === "polymarket") {
     const odds = meta.odds as Record<string, number> | undefined;
     if (odds) {
       const values = Object.values(odds);
       const maxOdds = Math.max(...values);
-      // Very decisive markets (>90% or <10%) are more noteworthy
       if (maxOdds >= 0.9 || maxOdds <= 0.1) return 70;
-      // Close races are interesting too
       if (Math.abs(maxOdds - 0.5) < 0.1) return 60;
     }
     return 40;
   }
 
-  // Default magnitude
   return 50;
 }
 
 function scoreCrossSource(
   signal: Signal,
-  titleMap: Map<string, string[]>
+  entitySourceMap: Map<string, string[]>
 ): number {
-  const key = normalizeTitle(signal.title);
-  const sources = titleMap.get(key) || [];
-  const uniqueSources = new Set(sources).size;
+  let maxSourceOverlap = 1;
 
-  if (uniqueSources >= 4) return 100;
-  if (uniqueSources >= 3) return 80;
-  if (uniqueSources >= 2) return 50;
+  // Entity-based matching (primary)
+  const entities = signal.metadata?.entities as ExtractedEntities | undefined;
+  if (entities) {
+    const allKeys = [
+      ...(entities.companies || []).map((c) => c.toLowerCase()),
+      ...(entities.people || []).map((p) => p.toLowerCase()),
+      ...(entities.tickers || []).map((t) => t.toLowerCase()),
+    ];
+
+    for (const key of allKeys) {
+      const sources = entitySourceMap.get(key) || [];
+      const uniqueCount = new Set(sources).size;
+      maxSourceOverlap = Math.max(maxSourceOverlap, uniqueCount);
+    }
+  }
+
+  // Fallback: title-based matching (for signals without extracted entities)
+  if (maxSourceOverlap === 1) {
+    const titleKey = normalizeTitle(signal.title);
+    const sources = entitySourceMap.get(titleKey) || [];
+    const uniqueCount = new Set(sources).size;
+    maxSourceOverlap = Math.max(maxSourceOverlap, uniqueCount);
+  }
+
+  if (maxSourceOverlap >= 4) return 100;
+  if (maxSourceOverlap >= 3) return 80;
+  if (maxSourceOverlap >= 2) return 50;
   return 10;
 }
 
 function scoreAuthority(signal: Signal): number {
-  return SOURCE_AUTHORITY[signal.source] ?? 50;
+  const sourceMap = SOURCE_AUTHORITY[signal.source];
+  if (!sourceMap) return 50;
+  return sourceMap[signal.type] ?? sourceMap.default ?? 50;
 }
 
-/** Normalize title for cross-source matching */
+/** Normalize title for fallback cross-source matching */
 function normalizeTitle(title: string): string {
   return title
     .toLowerCase()
@@ -200,6 +292,6 @@ function normalizeTitle(title: string): string {
     .replace(/\s+/g, " ")
     .trim()
     .split(" ")
-    .slice(0, 6) // First 6 words for fuzzy matching
+    .slice(0, 6)
     .join(" ");
 }

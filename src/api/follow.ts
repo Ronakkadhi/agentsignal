@@ -1,24 +1,21 @@
 import { Hono } from "hono";
 import { nanoid } from "nanoid";
-import { store } from "../store/memory.js";
-import { formatMarkdown } from "../formatter/markdown.js";
+import { db } from "../store/sqlite.js";
 
 const follow = new Hono();
 
-// In-memory follow store
-interface Follow {
-  id: string;
-  topics: string[];
-  sources?: string[];
-  types?: string[];
-  minScore: number;
-  createdAt: string;
-  ip: string;
-}
-
-const follows = new Map<string, Follow>();
 const MAX_FOLLOWS_PER_IP = 10;
 const MAX_FOLLOWS_TOTAL = 1000;
+
+interface FollowRow {
+  id: string;
+  topics: string;
+  sources: string | null;
+  types: string | null;
+  min_score: number;
+  ip: string;
+  created_at: string;
+}
 
 /** POST /follow — Create a topic subscription */
 follow.post("/", async (c) => {
@@ -28,8 +25,10 @@ follow.post("/", async (c) => {
     "unknown";
 
   // Check per-IP limit
-  const ipFollows = Array.from(follows.values()).filter((f) => f.ip === ip);
-  if (ipFollows.length >= MAX_FOLLOWS_PER_IP) {
+  const ipCount = db
+    .prepare("SELECT COUNT(*) as count FROM follows WHERE ip = ?")
+    .get(ip) as { count: number };
+  if (ipCount.count >= MAX_FOLLOWS_PER_IP) {
     return c.json(
       {
         ok: false,
@@ -40,7 +39,10 @@ follow.post("/", async (c) => {
   }
 
   // Global limit
-  if (follows.size >= MAX_FOLLOWS_TOTAL) {
+  const totalCount = db
+    .prepare("SELECT COUNT(*) as count FROM follows")
+    .get() as { count: number };
+  if (totalCount.count >= MAX_FOLLOWS_TOTAL) {
     return c.json(
       { ok: false, error: "Follow limit reached. Try again later." },
       503
@@ -82,23 +84,27 @@ follow.post("/", async (c) => {
   }
 
   const followId = `f_${nanoid(10)}`;
-  const followObj: Follow = {
-    id: followId,
-    topics: body.topics.map((t) => t.toLowerCase().trim()),
-    sources: body.sources?.map((s) => s.toLowerCase().trim()),
-    types: body.types?.map((t) => t.toLowerCase().trim()),
-    minScore: body.min_score ?? 0,
-    createdAt: new Date().toISOString(),
-    ip,
-  };
+  const topics = body.topics.map((t) => t.toLowerCase().trim());
+  const sources = body.sources?.map((s) => s.toLowerCase().trim());
+  const types = body.types?.map((t) => t.toLowerCase().trim());
+  const minScore = body.min_score ?? 0;
 
-  follows.set(followId, followObj);
+  db.prepare(
+    "INSERT INTO follows (id, topics, sources, types, min_score, ip) VALUES (?, ?, ?, ?, ?, ?)"
+  ).run(
+    followId,
+    JSON.stringify(topics),
+    sources ? JSON.stringify(sources) : null,
+    types ? JSON.stringify(types) : null,
+    minScore,
+    ip
+  );
 
   return c.json({
     ok: true,
     follow_id: followId,
-    topics: followObj.topics,
-    min_score: followObj.minScore,
+    topics,
+    min_score: minScore,
     feed_url: `/feed?follow=${followId}`,
     delete_url: `/follow/${followId}`,
     message: `Follow created. Poll /feed?follow=${followId} to get your filtered feed.`,
@@ -108,22 +114,24 @@ follow.post("/", async (c) => {
 /** GET /follow/:id — Get follow details */
 follow.get("/:id", (c) => {
   const id = c.req.param("id");
-  const f = follows.get(id);
+  const row = db.prepare("SELECT * FROM follows WHERE id = ?").get(id) as
+    | FollowRow
+    | undefined;
 
-  if (!f) {
+  if (!row) {
     return c.json({ ok: false, error: "Follow not found." }, 404);
   }
 
   return c.json({
     ok: true,
     follow: {
-      id: f.id,
-      topics: f.topics,
-      sources: f.sources,
-      types: f.types,
-      min_score: f.minScore,
-      created_at: f.createdAt,
-      feed_url: `/feed?follow=${f.id}`,
+      id: row.id,
+      topics: JSON.parse(row.topics),
+      sources: row.sources ? JSON.parse(row.sources) : undefined,
+      types: row.types ? JSON.parse(row.types) : undefined,
+      min_score: row.min_score,
+      created_at: row.created_at,
+      feed_url: `/feed?follow=${row.id}`,
     },
   });
 });
@@ -131,11 +139,12 @@ follow.get("/:id", (c) => {
 /** DELETE /follow/:id — Remove a follow */
 follow.delete("/:id", (c) => {
   const id = c.req.param("id");
-  if (!follows.has(id)) {
+  const result = db.prepare("DELETE FROM follows WHERE id = ?").run(id);
+
+  if (result.changes === 0) {
     return c.json({ ok: false, error: "Follow not found." }, 404);
   }
 
-  follows.delete(id);
   return c.json({ ok: true, message: "Follow deleted." });
 });
 
@@ -146,22 +155,40 @@ follow.get("/", (c) => {
     c.req.header("x-real-ip") ||
     "unknown";
 
-  const myFollows = Array.from(follows.values())
-    .filter((f) => f.ip === ip)
-    .map((f) => ({
-      id: f.id,
-      topics: f.topics,
-      min_score: f.minScore,
-      feed_url: `/feed?follow=${f.id}`,
-      created_at: f.createdAt,
-    }));
+  const rows = db
+    .prepare("SELECT * FROM follows WHERE ip = ?")
+    .all(ip) as FollowRow[];
+
+  const myFollows = rows.map((row) => ({
+    id: row.id,
+    topics: JSON.parse(row.topics),
+    min_score: row.min_score,
+    feed_url: `/feed?follow=${row.id}`,
+    created_at: row.created_at,
+  }));
 
   return c.json({ ok: true, count: myFollows.length, follows: myFollows });
 });
 
 /** Resolve a follow ID into query filters (used by /feed) */
 export function resolveFollow(followId: string) {
-  return follows.get(followId) || null;
+  const row = db
+    .prepare("SELECT * FROM follows WHERE id = ?")
+    .get(followId) as FollowRow | undefined;
+
+  if (!row) return null;
+
+  return {
+    id: row.id,
+    topics: JSON.parse(row.topics) as string[],
+    sources: row.sources
+      ? (JSON.parse(row.sources) as string[])
+      : undefined,
+    types: row.types ? (JSON.parse(row.types) as string[]) : undefined,
+    minScore: row.min_score,
+    createdAt: row.created_at,
+    ip: row.ip,
+  };
 }
 
 export { follow };
