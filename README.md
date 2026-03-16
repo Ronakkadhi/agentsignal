@@ -179,7 +179,7 @@ Entity-aware, multi-factor scoring engine:
 | Recency | 25% | Exponential decay, ~6hr half-life |
 | Magnitude | 20% | Price change %, earthquake magnitude, odds shift |
 | Cross-source | 15% | **Entity-based** matching across sources (4+ = 100, 3 = 80, 2 = 50) |
-| Authority | 10% | **Topic-dependent** (USGS = 95 for geo, CoinGecko = 85 for markets) |
+| Authority | 10% | **Topic-dependent** (SEC EDGAR = 90 for news, CoinGecko = 85 for markets) |
 
 **Developing story detection:** When the same entity appears across 3+ sources within 2 hours, all related signals get a +15 boost.
 
