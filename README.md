@@ -14,7 +14,7 @@ AI agents need real-world awareness — news, prices, social chatter, prediction
 
 - **Markdown default** — agents read 300 tokens instead of 5000
 - **Entity-aware scoring** — cross-source matching on companies, people, tickers (not title similarity)
-- **8 sources** — news, crypto, social, predictions, science, earthquakes
+- **22 sources** — news, crypto, social, stocks, predictions, science, security, policy, DeFi
 - **SQLite persistence** — signals survive restarts, historical replay up to 7 days
 - **Webhooks** — real-time push to your agent, no polling needed
 - **Delta support** — ETag, `since_id` cursor, `If-None-Match` → 304
@@ -163,12 +163,11 @@ Every signal, regardless of source:
 
 | Type | Sources | What |
 |---|---|---|
-| `news` | Google News, BBC, TechCrunch, Reuters, Ars Technica, The Verge | Headlines and articles |
-| `market` | CoinGecko | Crypto prices, trending coins, market cap |
-| `social` | Hacker News, Reddit | Community discussions, trending posts |
-| `events` | Polymarket | Prediction market odds ($10K+ volume) |
-| `science` | ArXiv | AI/ML/CS research papers |
-| `geo` | USGS Earthquakes | Real-time seismic activity |
+| `news` | Google News, 15 RSS Feeds, Techmeme, Crunchbase, SEC EDGAR, Congress.gov, CVE/NVD, GDELT | Headlines, filings, vulnerabilities, policy |
+| `market` | CoinGecko, Yahoo Finance, DeFi Llama, FRED | Crypto, stocks, DeFi TVL, economic indicators |
+| `social` | Hacker News, Reddit, Lobsters, GitHub Trending, Product Hunt | Community discussions, trending repos, launches |
+| `events` | Polymarket, Kalshi, Metaculus | Prediction markets, event contracts, forecasts |
+| `science` | ArXiv, Hugging Face | AI/ML papers, trending models |
 
 ## Scoring (v2)
 
@@ -192,7 +191,7 @@ Sources → Pre-filter → Entity Extraction → Score → SQLite → Enrich (Ha
 ## Architecture
 
 ```
-[8 Free Sources] → [Poll 60-300s] → [Pre-filter → Extract → Score → SQLite] → [Serve + Enrich + Dispatch]
+[22 Free Sources] → [Poll 60-3600s] → [Pre-filter → Extract → Score → SQLite] → [Serve + Enrich + Dispatch]
 ```
 
 - **SQLite persistence** — WAL mode, signals stored up to 7 days
@@ -234,7 +233,7 @@ export const mySource: SourceProvider = {
 ## Roadmap
 
 - [x] Ranked markdown feed
-- [x] 8 real-time sources
+- [x] 22 real-time sources (HN, Reddit, Google News, CoinGecko, Yahoo Finance, DeFi Llama, Polymarket, Kalshi, Metaculus, ArXiv, Hugging Face, GitHub Trending, Product Hunt, Lobsters, Techmeme, Crunchbase, SEC EDGAR, Congress.gov, CVE/NVD, GDELT, FRED, 15 RSS feeds)
 - [x] Signal scoring engine v2 (entity-aware, type-dependent)
 - [x] `/ask` endpoint — ask questions, get signal-grounded answers
 - [x] `/follow` — topic subscriptions for agents
@@ -245,7 +244,7 @@ export const mySource: SourceProvider = {
 - [x] Signal enrichment via Claude Haiku
 - [x] Entity extraction pipeline (tickers, companies, people)
 - [x] Pre-filter layer (dedup, noise removal)
-- [ ] More sources (Yahoo Finance, GitHub Trending, DeFi Llama, CVEs)
+- [ ] More sources (Twitter/X, Bluesky, Telegram channels)
 - [ ] MCP server integration
 - [ ] SSE streaming
 

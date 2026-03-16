@@ -30,6 +30,56 @@ const FEEDS = [
     url: "https://www.theverge.com/rss/index.xml",
     topics: ["tech"],
   },
+  {
+    name: "venturebeat",
+    url: "https://venturebeat.com/feed/",
+    topics: ["tech", "ai"],
+  },
+  {
+    name: "wired",
+    url: "https://www.wired.com/feed/rss",
+    topics: ["tech"],
+  },
+  {
+    name: "politico",
+    url: "https://rss.politico.com/politics-news.xml",
+    topics: ["politics", "policy"],
+  },
+  {
+    name: "axios",
+    url: "https://api.axios.com/feed/",
+    topics: ["tech", "policy"],
+  },
+  {
+    name: "coindesk",
+    url: "https://www.coindesk.com/arc/outboundfeeds/rss/",
+    topics: ["crypto"],
+  },
+  {
+    name: "cointelegraph",
+    url: "https://cointelegraph.com/rss",
+    topics: ["crypto"],
+  },
+  {
+    name: "aljazeera",
+    url: "https://www.aljazeera.com/xml/rss/all.xml",
+    topics: ["world", "geopolitics"],
+  },
+  {
+    name: "marketwatch",
+    url: "https://www.marketwatch.com/rss/topstories",
+    topics: ["finance", "stocks"],
+  },
+  {
+    name: "mit-tech-review",
+    url: "https://www.technologyreview.com/feed/",
+    topics: ["tech", "science"],
+  },
+  {
+    name: "devto",
+    url: "https://dev.to/feed",
+    topics: ["tech", "programming"],
+  },
 ];
 
 export const rssFeeds: SourceProvider = {

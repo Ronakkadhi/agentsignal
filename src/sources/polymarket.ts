@@ -1,7 +1,7 @@
 import { Signal, SourceProvider } from "../types.js";
 
-const POLYMARKET_URL = "https://gamma-api.polymarket.com/markets?limit=40&active=true&order=volume&ascending=false";
-const MIN_VOLUME = 10_000; // $10K minimum volume to filter noise
+const POLYMARKET_URL = "https://gamma-api.polymarket.com/markets?limit=40&active=true&order=volume24hr&ascending=false";
+const MIN_VOLUME = 1_000; // $1K minimum volume to filter noise
 
 interface PolymarketEvent {
   id: string;

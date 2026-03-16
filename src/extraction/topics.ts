@@ -101,6 +101,51 @@ const TOPIC_KEYWORDS: Record<string, string> = {
   "space ": "space",
   nasa: "space",
   spacex: "space",
+
+  // DeFi / Web3
+  "total value locked": "defi",
+  tvl: "defi",
+  "yield farming": "defi",
+  staking: "defi",
+  "liquidity pool": "defi",
+  aave: "defi",
+  uniswap: "defi",
+
+  // Economics / Macro
+  gdp: "economics",
+  "consumer price": "economics",
+  "unemployment rate": "economics",
+  "federal reserve": "economics",
+  "treasury yield": "economics",
+  cpi: "economics",
+  tariff: "economics",
+
+  // Security / CVE
+  "zero-day": "security",
+  exploit: "security",
+  malware: "security",
+  phishing: "security",
+  "supply chain attack": "security",
+  "remote code execution": "security",
+  "privilege escalation": "security",
+
+  // Open Source / Dev
+  github: "open-source",
+  "pull request": "dev",
+  "code review": "dev",
+  transformer: "ai",
+  "fine-tuning": "ai",
+  "large language model": "ai",
+
+  // Policy / Government
+  bill: "policy",
+  legislation: "policy",
+  "executive order": "policy",
+  "supreme court": "policy",
+  antitrust: "regulation",
+  "data privacy": "regulation",
+  gdpr: "regulation",
+  "ai act": "regulation",
 };
 
 // Company name variants → canonical name
@@ -135,6 +180,37 @@ const COMPANY_MAP: Record<string, string> = {
   shopify: "Shopify",
   cloudflare: "Cloudflare",
   databricks: "Databricks",
+  huggingface: "Hugging Face",
+  "hugging face": "Hugging Face",
+  mistral: "Mistral AI",
+  "mistral ai": "Mistral AI",
+  palantir: "Palantir",
+  snowflake: "Snowflake",
+  figma: "Figma",
+  notion: "Notion",
+  vercel: "Vercel",
+  supabase: "Supabase",
+  twilio: "Twilio",
+  crowdstrike: "CrowdStrike",
+  "palo alto": "Palo Alto Networks",
+  fortinet: "Fortinet",
+  datadog: "Datadog",
+  hashicorp: "HashiCorp",
+  gitlab: "GitLab",
+  "product hunt": "Product Hunt",
+  kalshi: "Kalshi",
+  polymarket: "Polymarket",
+  robinhood: "Robinhood",
+  "jp morgan": "JPMorgan",
+  jpmorgan: "JPMorgan",
+  "goldman sachs": "Goldman Sachs",
+  "morgan stanley": "Morgan Stanley",
+  blackrock: "BlackRock",
+  "ark invest": "ARK Invest",
+  sequoia: "Sequoia Capital",
+  a16z: "Andreessen Horowitz",
+  "andreessen horowitz": "Andreessen Horowitz",
+  "y combinator": "Y Combinator",
 };
 
 // Notable people lookup

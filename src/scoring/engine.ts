@@ -24,14 +24,30 @@ const TYPE_ENGAGEMENT_MULTIPLIER: Record<string, number> = {
 
 // 2D authority: source → { signalType → score }
 const SOURCE_AUTHORITY: Record<string, Record<string, number>> = {
+  // Original sources
   "google-news": { news: 85, default: 70 },
   "rss-feeds": { news: 75, default: 60 },
   coingecko: { market: 85, default: 40 },
   polymarket: { events: 80, market: 75, default: 50 },
-  "usgs-earthquakes": { geo: 95, default: 30 },
   arxiv: { science: 90, default: 50 },
   hackernews: { social: 65, default: 55 },
   reddit: { social: 55, default: 45 },
+  // New sources
+  "github-trending": { social: 70, default: 55 },
+  "product-hunt": { social: 70, default: 50 },
+  "yahoo-finance": { market: 80, default: 50 },
+  kalshi: { events: 75, market: 70, default: 45 },
+  huggingface: { science: 75, default: 50 },
+  "defi-llama": { market: 80, default: 40 },
+  cve: { news: 80, default: 60 },
+  crunchbase: { news: 70, default: 55 },
+  techmeme: { news: 85, default: 65 },
+  lobsters: { social: 60, default: 50 },
+  "sec-edgar": { news: 85, market: 80, default: 60 },
+  fred: { market: 90, default: 60 },
+  metaculus: { events: 75, default: 50 },
+  congress: { news: 75, default: 55 },
+  gdelt: { news: 65, default: 50 },
 };
 
 // Entity cluster for developing story detection
@@ -139,13 +155,62 @@ function scoreEngagement(signal: Signal): number {
     else if (volume >= 1e4) raw = 40;
     else raw = 20;
   }
-  // USGS: score based on USGS significance
-  else if (signal.source === "usgs-earthquakes") {
-    const sig = (meta.significance as number) || 0;
-    if (sig >= 600) raw = 100;
-    else if (sig >= 400) raw = 80;
-    else if (sig >= 200) raw = 60;
-    else if (sig >= 100) raw = 40;
+  // Lobsters: score based on points (similar to HN)
+  else if (signal.source === "lobsters") {
+    const points = (meta.score as number) || 0;
+    if (points >= 100) raw = 100;
+    else if (points >= 50) raw = 80;
+    else if (points >= 25) raw = 60;
+    else if (points >= 10) raw = 40;
+    else raw = 20;
+  }
+  // GitHub Trending: total stars
+  else if (signal.source === "github-trending") {
+    const stars = (meta.stars as number) || 0;
+    if (stars >= 50000) raw = 100;
+    else if (stars >= 10000) raw = 80;
+    else if (stars >= 5000) raw = 60;
+    else if (stars >= 1000) raw = 40;
+    else raw = 20;
+  }
+  // Product Hunt: votes
+  else if (signal.source === "product-hunt") {
+    raw = 60; // RSS doesn't provide vote counts, default moderate
+  }
+  // Kalshi: volume (similar to Polymarket)
+  else if (signal.source === "kalshi") {
+    const volume = (meta.volume as number) || 0;
+    if (volume >= 1e7) raw = 100;
+    else if (volume >= 1e6) raw = 80;
+    else if (volume >= 1e5) raw = 60;
+    else if (volume >= 1e4) raw = 40;
+    else raw = 20;
+  }
+  // DeFi Llama: TVL-based engagement
+  else if (signal.source === "defi-llama") {
+    const tvl = (meta.tvl as number) || 0;
+    if (tvl >= 1e10) raw = 100;
+    else if (tvl >= 1e9) raw = 80;
+    else if (tvl >= 1e8) raw = 60;
+    else if (tvl >= 1e7) raw = 40;
+    else raw = 20;
+  }
+  // Hugging Face: downloads
+  else if (signal.source === "huggingface") {
+    const downloads = (meta.downloads as number) || 0;
+    if (downloads >= 1e7) raw = 100;
+    else if (downloads >= 1e6) raw = 80;
+    else if (downloads >= 1e5) raw = 60;
+    else if (downloads >= 1e4) raw = 40;
+    else raw = 20;
+  }
+  // Metaculus: number of forecasters
+  else if (signal.source === "metaculus") {
+    const forecasters = (meta.forecasters as number) || 0;
+    if (forecasters >= 500) raw = 100;
+    else if (forecasters >= 200) raw = 80;
+    else if (forecasters >= 100) raw = 60;
+    else if (forecasters >= 50) raw = 40;
     else raw = 20;
   }
   // Default: moderate engagement for news sources
@@ -217,14 +282,42 @@ function scoreMagnitude(signal: Signal): number {
     return 20;
   }
 
-  // Earthquakes: magnitude
-  if (signal.source === "usgs-earthquakes") {
-    const mag = (meta.magnitude as number) || 0;
-    if (mag >= 7) return 100;
-    if (mag >= 6) return 85;
-    if (mag >= 5) return 65;
-    if (mag >= 4) return 40;
+  // Yahoo Finance: price change %
+  if (signal.source === "yahoo-finance" && meta.change !== undefined) {
+    const absChange = Math.abs(meta.change as number);
+    if (absChange >= 10) return 100;
+    if (absChange >= 5) return 85;
+    if (absChange >= 3) return 65;
+    if (absChange >= 1) return 40;
     return 20;
+  }
+
+  // DeFi Llama: TVL change %
+  if (signal.source === "defi-llama" && meta.change1d !== undefined) {
+    const absChange = Math.abs(meta.change1d as number);
+    if (absChange >= 30) return 100;
+    if (absChange >= 15) return 85;
+    if (absChange >= 5) return 65;
+    if (absChange >= 2) return 40;
+    return 20;
+  }
+
+  // CVE: CVSS severity
+  if (signal.source === "cve") {
+    const cvss = (meta.cvss as number) || 0;
+    if (cvss >= 9) return 100;
+    if (cvss >= 7) return 80;
+    if (cvss >= 5) return 55;
+    if (cvss >= 3) return 35;
+    return 20;
+  }
+
+  // Kalshi: odds extremeness (same as Polymarket)
+  if (signal.source === "kalshi") {
+    const yes = (meta.yes as number) || 0.5;
+    if (yes >= 0.9 || yes <= 0.1) return 70;
+    if (Math.abs(yes - 0.5) < 0.1) return 60;
+    return 40;
   }
 
   // Polymarket: check if odds are extreme

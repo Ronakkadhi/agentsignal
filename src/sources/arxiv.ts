@@ -67,8 +67,8 @@ export const arxiv: SourceProvider = {
             },
           });
         }
-      } catch {
-        // Skip failed feeds
+      } catch (err) {
+        console.error(`[arxiv] feed ${feed.url} failed:`, err);
       }
     }
 
