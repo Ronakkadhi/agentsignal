@@ -5,7 +5,7 @@
 Open-source ranked feed of real-time news, markets, crypto, social chatter, predictions, research papers, and world events. Markdown-first output optimized for AI agents. Entity-aware scoring. Webhooks. Delta updates. No signup. One curl command.
 
 ```bash
-curl agentsignal.co/feed
+curl agentsignal.dev/feed
 ```
 
 ## Why
@@ -26,42 +26,42 @@ AI agents need real-world awareness — news, prices, social chatter, prediction
 
 ```bash
 # Get the full ranked feed (markdown)
-curl agentsignal.co/feed
+curl agentsignal.dev/feed
 
 # Get JSON format
-curl agentsignal.co/feed?format=json
+curl agentsignal.dev/feed?format=json
 
 # Filter by topic
-curl agentsignal.co/feed?topic=ai
+curl agentsignal.dev/feed?topic=ai
 
 # Only high-signal items
-curl agentsignal.co/feed?min_score=70
+curl agentsignal.dev/feed?min_score=70
 
 # Filter by source type
-curl agentsignal.co/feed?type=market,news
+curl agentsignal.dev/feed?type=market,news
 
 # Delta: only new signals since last poll
-curl agentsignal.co/feed?since_id=sig_hn_12345
+curl agentsignal.dev/feed?since_id=sig_hn_12345
 
 # Historical replay: what happened yesterday?
-curl "agentsignal.co/feed?from=2026-03-13T00:00:00Z&to=2026-03-14T00:00:00Z&format=json"
+curl "agentsignal.dev/feed?from=2026-03-13T00:00:00Z&to=2026-03-14T00:00:00Z&format=json"
 
 # Ask a question (grounded in real-time signals)
-curl -X POST agentsignal.co/ask \
+curl -X POST agentsignal.dev/ask \
   -H "Content-Type: application/json" \
   -d '{"q": "What happened to crypto today?"}'
 
 # Create a topic follow
-curl -X POST agentsignal.co/follow \
+curl -X POST agentsignal.dev/follow \
   -d '{"topics": ["ai", "regulation"], "min_score": 60}'
 
 # Register a webhook for real-time push
-curl -X POST agentsignal.co/webhooks \
+curl -X POST agentsignal.dev/webhooks \
   -H "Content-Type: application/json" \
   -d '{"url": "https://your-agent.com/signals", "topics": ["ai"], "min_score": 50}'
 
 # List active sources
-curl agentsignal.co/sources
+curl agentsignal.dev/sources
 ```
 
 ## API

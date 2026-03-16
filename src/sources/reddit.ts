@@ -38,7 +38,7 @@ export const reddit: SourceProvider = {
           `https://www.reddit.com/r/${sub.name}/hot.json?limit=10`,
           {
             headers: {
-              "User-Agent": "AgentSignal/0.1 (agentsignal.co)",
+              "User-Agent": "AgentSignal/0.1 (agentsignal.dev)",
             },
           }
         );

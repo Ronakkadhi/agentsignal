@@ -50,7 +50,7 @@ jobs:
         if: steps.changes.outputs.changed == 'true'
         run: |
           git config user.name "AgentSignal Bot"
-          git config user.email "bot@agentsignal.co"
+          git config user.email "bot@agentsignal.dev"
           git add -A
           git commit -m "docs: auto-update source documentation"
           git push

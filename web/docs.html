@@ -52,7 +52,7 @@
     </nav>
 
     <h1>API Documentation</h1>
-    <p>Base URL: <code>https://agentsignal.co</code></p>
+    <p>Base URL: <code>https://agentsignal.dev</code></p>
     <p>Default response format: <strong>Markdown</strong>. Add <code>?format=json</code> for structured JSON.</p>
     <p>No authentication required. Rate limited by IP. Persistent SQLite storage.</p>
 
@@ -61,7 +61,7 @@
 
     <h3><span class="method-badge method-get">GET</span> /feed</h3>
     <p>Returns ranked signals from all sources. Markdown by default.</p>
-    <pre><code>curl agentsignal.co/feed</code></pre>
+    <pre><code>curl agentsignal.dev/feed</code></pre>
 
     <p><strong>Query Parameters:</strong></p>
     <table>
@@ -123,7 +123,7 @@
 
     <h3><span class="method-badge method-get">GET</span> /sources</h3>
     <p>Lists all registered sources and their current status.</p>
-    <pre><code>curl agentsignal.co/sources</code></pre>
+    <pre><code>curl agentsignal.dev/sources</code></pre>
 
     <h3><span class="method-badge method-get">GET</span> /health</h3>
     <p>Health check. Returns uptime, timestamp, and whether /ask is enabled.</p>
@@ -135,29 +135,29 @@
     <h3>Option 1: Cursor Pagination (<code>since_id</code>)</h3>
     <p>Save the <code>X-Latest-Id</code> header from each response. Pass it back on the next request to get only newer signals.</p>
     <pre><code># First request
-curl -i agentsignal.co/feed?format=json
+curl -i agentsignal.dev/feed?format=json
 # → X-Latest-Id: sig_hn_12345
 
 # Next poll — only new signals
-curl agentsignal.co/feed?format=json&since_id=sig_hn_12345</code></pre>
+curl agentsignal.dev/feed?format=json&since_id=sig_hn_12345</code></pre>
 
     <h3>Option 2: ETag / Conditional Requests</h3>
     <p>Use standard HTTP caching. If nothing changed, you get a <code>304 Not Modified</code> (empty body, zero tokens).</p>
     <pre><code># First request
-curl -i agentsignal.co/feed
+curl -i agentsignal.dev/feed
 # → ETag: "a1b2c3d4e5f6"
 
 # Conditional poll
-curl -H 'If-None-Match: "a1b2c3d4e5f6"' agentsignal.co/feed
+curl -H 'If-None-Match: "a1b2c3d4e5f6"' agentsignal.dev/feed
 # → 304 Not Modified (if no new signals)</code></pre>
 
     <h3>Option 3: Historical Replay (<code>from</code> / <code>to</code>)</h3>
     <p>Query a specific time window. Max 500 signals per replay. SQLite-backed, so historical data persists across restarts (up to 7 days).</p>
     <pre><code># What happened in the last 6 hours?
-curl "agentsignal.co/feed?format=json&from=2026-03-14T04:00:00Z&to=2026-03-14T10:00:00Z"
+curl "agentsignal.dev/feed?format=json&from=2026-03-14T04:00:00Z&to=2026-03-14T10:00:00Z"
 
 # All high-signal crypto from yesterday
-curl "agentsignal.co/feed?format=json&from=2026-03-13T00:00:00Z&to=2026-03-14T00:00:00Z&topic=crypto&min_score=70"</code></pre>
+curl "agentsignal.dev/feed?format=json&from=2026-03-13T00:00:00Z&to=2026-03-14T00:00:00Z&topic=crypto&min_score=70"</code></pre>
     <p>If results are capped, the response includes <code>X-Truncated: true</code> header. Narrow your time range or add filters.</p>
 
     <!-- Ask -->
@@ -166,7 +166,7 @@ curl "agentsignal.co/feed?format=json&from=2026-03-13T00:00:00Z&to=2026-03-14T00
     <h3><span class="method-badge method-post">POST</span> /ask</h3>
     <p>Ask a natural language question. Get an answer grounded in real-time signals, powered by Claude.</p>
     <p>Requires <code>ANTHROPIC_API_KEY</code> on the server. Rate limited to 20 questions/hr per IP.</p>
-    <pre><code>curl -X POST agentsignal.co/ask \
+    <pre><code>curl -X POST agentsignal.dev/ask \
   -H "Content-Type: application/json" \
   -d '{"q": "What happened to crypto in the last 2 hours?"}'</code></pre>
 
@@ -188,7 +188,7 @@ from 62% to 41%. Social sentiment bearish across Reddit and HN.</code></pre>
 
     <h3><span class="method-badge method-post">POST</span> /follow</h3>
     <p>Create a new topic subscription.</p>
-    <pre><code>curl -X POST agentsignal.co/follow \
+    <pre><code>curl -X POST agentsignal.dev/follow \
   -H "Content-Type: application/json" \
   -d '{"topics": ["ai", "regulation"], "min_score": 60}'</code></pre>
 
@@ -211,7 +211,7 @@ from 62% to 41%. Social sentiment bearish across Reddit and HN.</code></pre>
 }</code></pre>
 
     <p>Then poll your personalized feed:</p>
-    <pre><code>curl agentsignal.co/feed?follow=f_abc123</code></pre>
+    <pre><code>curl agentsignal.dev/feed?follow=f_abc123</code></pre>
 
     <h3><span class="method-badge method-get">GET</span> /follow</h3>
     <p>List all your follows (identified by IP).</p>
@@ -228,7 +228,7 @@ from 62% to 41%. Social sentiment bearish across Reddit and HN.</code></pre>
 
     <h3><span class="method-badge method-post">POST</span> /webhooks</h3>
     <p>Register a webhook endpoint.</p>
-    <pre><code>curl -X POST agentsignal.co/webhooks \
+    <pre><code>curl -X POST agentsignal.dev/webhooks \
   -H "Content-Type: application/json" \
   -d '{
     "url": "https://your-agent.com/signals",
@@ -285,11 +285,11 @@ from 62% to 41%. Social sentiment bearish across Reddit and HN.</code></pre>
 
     <h3><span class="method-badge method-get">GET</span> /webhooks</h3>
     <p>List your registered webhooks (by IP).</p>
-    <pre><code>curl agentsignal.co/webhooks</code></pre>
+    <pre><code>curl agentsignal.dev/webhooks</code></pre>
 
     <h3><span class="method-badge method-delete">DELETE</span> /webhooks/:id</h3>
     <p>Delete a webhook.</p>
-    <pre><code>curl -X DELETE agentsignal.co/webhooks/wh_abc123</code></pre>
+    <pre><code>curl -X DELETE agentsignal.dev/webhooks/wh_abc123</code></pre>
 
     <h3>Security</h3>
     <ul style="color: var(--text-dim); margin-bottom: 16px; padding-left: 20px;">

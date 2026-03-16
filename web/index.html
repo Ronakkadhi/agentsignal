@@ -45,7 +45,7 @@
           <span class="curl-label">Terminal</span>
           <button class="copy-btn" onclick="copyCommand()">Copy</button>
         </div>
-        <pre class="curl-command"><code>curl agentsignal.co/feed</code></pre>
+        <pre class="curl-command"><code>curl agentsignal.dev/feed</code></pre>
       </div>
 
       <div class="cta-row">
@@ -122,37 +122,37 @@
           <div class="usecase-icon">📈</div>
           <h3>Trading Agents</h3>
           <p>Feed crypto prices + Polymarket odds + breaking news into your trading logic. One call, all context.</p>
-          <div class="usecase-curl"><code>curl "agentsignal.co/feed?type=market,events&min_score=60&format=json"</code></div>
+          <div class="usecase-curl"><code>curl "agentsignal.dev/feed?type=market,events&min_score=60&format=json"</code></div>
         </div>
         <div class="usecase-card">
           <div class="usecase-icon">📰</div>
           <h3>News Agents</h3>
           <p>Monitor topics across all sources. Ranked signals with developing story detection across sources.</p>
-          <div class="usecase-curl"><code>curl "agentsignal.co/feed?topic=ai&type=news&min_score=50"</code></div>
+          <div class="usecase-curl"><code>curl "agentsignal.dev/feed?topic=ai&type=news&min_score=50"</code></div>
         </div>
         <div class="usecase-card">
           <div class="usecase-icon">🔬</div>
           <h3>Research Agents</h3>
           <p>Track ArXiv papers, HN discussions, Reddit threads. Historical replay lets you search the past 7 days.</p>
-          <div class="usecase-curl"><code>curl "agentsignal.co/feed?source=arxiv,hackernews&topic=llm"</code></div>
+          <div class="usecase-curl"><code>curl "agentsignal.dev/feed?source=arxiv,hackernews&topic=llm"</code></div>
         </div>
         <div class="usecase-card">
           <div class="usecase-icon">🔔</div>
           <h3>Alert Agents<span class="new-tag">NEW</span></h3>
           <p>Register a webhook and get high-signal alerts pushed to your agent in real time. No polling needed.</p>
-          <div class="usecase-curl"><code>curl -X POST agentsignal.co/webhooks -d '{"url":"https://...", "min_score":70}'</code></div>
+          <div class="usecase-curl"><code>curl -X POST agentsignal.dev/webhooks -d '{"url":"https://...", "min_score":70}'</code></div>
         </div>
         <div class="usecase-card">
           <div class="usecase-icon">💬</div>
           <h3>Q&A Agents</h3>
           <p>Ask questions grounded in real-time signals. Powered by Claude with full signal context.</p>
-          <div class="usecase-curl"><code>curl -X POST agentsignal.co/ask -d '{"q":"What happened to crypto today?"}'</code></div>
+          <div class="usecase-curl"><code>curl -X POST agentsignal.dev/ask -d '{"q":"What happened to crypto today?"}'</code></div>
         </div>
         <div class="usecase-card">
           <div class="usecase-icon">🏁</div>
           <h3>Competitive Intel</h3>
           <p>Follow competitor names across news, social, and forums. Get scored alerts on launches and press.</p>
-          <div class="usecase-curl"><code>curl -X POST agentsignal.co/follow -d '{"topics":["openai","anthropic"]}'</code></div>
+          <div class="usecase-curl"><code>curl -X POST agentsignal.dev/follow -d '{"topics":["openai","anthropic"]}'</code></div>
         </div>
       </div>
     </section>
@@ -170,10 +170,10 @@
             <span class="api-example-title">Get ranked signals with delta support</span>
           </div>
           <div class="curl-block compact">
-            <pre class="curl-command"><code>curl agentsignal.co/feed?topic=ai&min_score=70&format=json
+            <pre class="curl-command"><code>curl agentsignal.dev/feed?topic=ai&min_score=70&format=json
 
 # Delta: only new signals since last poll
-curl agentsignal.co/feed?since_id=sig_hn_12345</code></pre>
+curl agentsignal.dev/feed?since_id=sig_hn_12345</code></pre>
           </div>
         </div>
 
@@ -184,7 +184,7 @@ curl agentsignal.co/feed?since_id=sig_hn_12345</code></pre>
             <span class="api-example-title">Push a question, get a signal-grounded answer</span>
           </div>
           <div class="curl-block compact">
-            <pre class="curl-command"><code>curl -X POST agentsignal.co/ask \
+            <pre class="curl-command"><code>curl -X POST agentsignal.dev/ask \
   -d '{"q": "What happened to crypto today?"}'</code></pre>
           </div>
         </div>
@@ -196,7 +196,7 @@ curl agentsignal.co/feed?since_id=sig_hn_12345</code></pre>
             <span class="api-example-title">Subscribe to topics, get a personalized feed</span>
           </div>
           <div class="curl-block compact">
-            <pre class="curl-command"><code>curl -X POST agentsignal.co/follow \
+            <pre class="curl-command"><code>curl -X POST agentsignal.dev/follow \
   -d '{"topics": ["ai", "regulation"], "min_score": 60}'</code></pre>
           </div>
         </div>
@@ -208,7 +208,7 @@ curl agentsignal.co/feed?since_id=sig_hn_12345</code></pre>
             <span class="api-example-title">Push signals to your agent in real time <span class="new-tag">NEW</span></span>
           </div>
           <div class="curl-block compact">
-            <pre class="curl-command"><code>curl -X POST agentsignal.co/webhooks \
+            <pre class="curl-command"><code>curl -X POST agentsignal.dev/webhooks \
   -d '{"url": "https://your-agent.com/signals", "min_score": 50}'</code></pre>
           </div>
         </div>
@@ -220,7 +220,7 @@ curl agentsignal.co/feed?since_id=sig_hn_12345</code></pre>
             <span class="api-example-title">Query historical signals (up to 7 days) <span class="new-tag">NEW</span></span>
           </div>
           <div class="curl-block compact">
-            <pre class="curl-command"><code>curl "agentsignal.co/feed?from=2026-03-14T00:00:00Z&to=2026-03-15T00:00:00Z&topic=ai"</code></pre>
+            <pre class="curl-command"><code>curl "agentsignal.dev/feed?from=2026-03-14T00:00:00Z&to=2026-03-15T00:00:00Z&topic=ai"</code></pre>
           </div>
         </div>
       </div>

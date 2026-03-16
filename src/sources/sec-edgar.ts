@@ -4,7 +4,7 @@ import { Signal, SourceProvider } from "../types.js";
 
 const parser = new Parser({
   headers: {
-    "User-Agent": "AgentSignal agentsignal.co admin@agentsignal.co",
+    "User-Agent": "AgentSignal agentsignal.dev admin@agentsignal.dev",
   },
 });
 

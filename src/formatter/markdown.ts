@@ -9,7 +9,7 @@ export function formatMarkdown(signals: Signal[]): string {
   const background = signals.filter((s) => s.score < 40);
 
   let md = `# AgentSignal — ${dateStr}\n`;
-  md += `> ${signals.length} signals from agentsignal.co\n\n`;
+  md += `> ${signals.length} signals from agentsignal.dev\n\n`;
 
   if (high.length > 0) {
     md += `## 🔴 High Signal\n`;
@@ -40,7 +40,7 @@ export function formatMarkdown(signals: Signal[]): string {
   }
 
   md += `---\n`;
-  md += `_Powered by [AgentSignal](https://agentsignal.co) — open source signal feed for AI agents_\n`;
+  md += `_Powered by [AgentSignal](https://agentsignal.dev) — open source signal feed for AI agents_\n`;
 
   return md;
 }

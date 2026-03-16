@@ -1,6 +1,6 @@
 // Copy curl command
 function copyCommand() {
-  navigator.clipboard.writeText('curl agentsignal.co/feed').then(() => {
+  navigator.clipboard.writeText('curl agentsignal.dev/feed').then(() => {
     const btn = document.querySelector('.copy-btn');
     btn.textContent = 'Copied!';
     btn.style.background = '#22c55e';
